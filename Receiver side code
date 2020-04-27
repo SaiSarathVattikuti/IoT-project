@@ -1,0 +1,196 @@
+import serial
+
+from time import sleep
+
+import string
+
+import sys
+
+import urllib
+
+import RPi.GPIO as GPIO
+
+URL = 'https://api.thingspeak.com/update?api_key=T2KWG8HZ6PEKT1NC&field1=0'
+
+GPIO.setmode(GPIO.BOARD)
+
+button=22
+
+button1=18
+
+buttonh=38
+
+buttonh1=40
+
+buttont=32
+
+buttont1=36
+
+GPIO.setup(button,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+
+GPIO.setup(button1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+
+GPIO.setup(buttonh,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+
+GPIO.setup(buttonh1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+
+GPIO.setup(buttont,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+
+GPIO.setup(buttont1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+
+BS=False
+
+BS1=False
+
+BSh=False
+
+BSh1=False
+
+BSt=False
+
+BSt1=False
+
+ser = serial.Serial('/dev/ttyAMA0', 9600)
+
+while(1):
+
+ 
+36
+
+
+
+
+state=ser.readline()
+
+(id, vib, met, hum, tem)=[float(s) for s in state.split()] finalURL = URL + "&field2=%s&field3=%s"%(hum,
+tem)+"&field1=%s"%(met)+"&field4=%s"%(vib)+"&field5=%s"%(id)
+
+s=urllib.urlopen(finalURL);
+
+s.close()
+
+print(state)
+
+#print(hum)
+
+#print(tem)
+
+#print(state)
+
+#print(vib)
+
+if GPIO.input(button)==True and  BS==False:
+
+if GPIO.input(button)==1:
+
+ser.write('k')
+
+#print 'k'
+
+BS=True
+
+sleep(0.2)
+
+elif GPIO.input(button)==False:
+
+BS=False
+
+sleep(0.2)
+
+if GPIO.input(button1)==True and  BS1==False:
+
+if GPIO.input(button1)==1:
+
+ser.write('l')
+
+#print 'l'
+
+BS1=True
+
+sleep(0.2)
+
+elif GPIO.input(button1)==False:
+
+BS1=False
+
+sleep(0.2)
+
+if GPIO.input(buttonh)==True and  BSh==False:
+
+ 
+37
+
+
+if GPIO.input(buttonh)==1:
+
+ser.write('s')
+
+#print 's'
+
+BSh=True
+
+sleep(0.2)
+
+elif GPIO.input(buttonh)==False:
+
+BSh=False
+
+sleep(0.2)
+
+if GPIO.input(buttonh1)==True and  BSh1==False:
+
+if GPIO.input(buttonh1)==1:
+
+ser.write('u')
+
+#print 'u'
+
+BSh1=True
+
+sleep(0.2)
+
+elif GPIO.input(buttonh1)==False:
+
+BSh1=False	sleep(0.2)
+
+if GPIO.input(buttont)==True and  BSt==False:
+
+if GPIO.input(buttont)==1:
+
+ser.write('r')
+
+#print 'r'
+
+BSt=True
+
+sleep(0.2)
+
+elif GPIO.input(buttont)==False:
+
+BSt=False
+
+sleep(0.2)
+
+if GPIO.input(buttont1)==True and  BSt1==False:
+
+if GPIO.input(buttont1)==1:
+
+ser.write('y')
+
+#print 'y'
+
+BSt1=True
+
+sleep(0.2)
+
+ 
+38
+
+
+elif GPIO.input(buttont1)==False:
+
+BSt1=False
+
+sleep(0.2)
+
+
