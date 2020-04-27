@@ -55,7 +55,7 @@ ser = serial.Serial('/dev/ttyAMA0', 9600)
 while(1):
 
  
-36
+
 
 
 
@@ -118,7 +118,7 @@ sleep(0.2)
 if GPIO.input(buttonh)==True and  BSh==False:
 
  
-37
+
 
 
 if GPIO.input(buttonh)==1:
@@ -184,7 +184,7 @@ BSt1=True
 sleep(0.2)
 
  
-38
+
 
 
 elif GPIO.input(buttont1)==False:
