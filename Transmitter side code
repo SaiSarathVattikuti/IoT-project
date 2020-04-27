@@ -1,0 +1,647 @@
+#include <SPI.h>
+
+#include <MFRC522.h>
+
+#include <DHT.h>
+
+//Constants
+
+int vib = 5;
+
+int vibThres = 3;
+
+#define SS_PIN 53
+
+#define RST_PIN 3
+
+#define DHTPIN 7
+
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+
+char incomingbyte;
+
+long measurement;
+
+int gas[10];
+
+int i, avg, rate, sum;
+
+float sum1, sum2, rate1, rate2;
+
+float hum[10]; //Stores humidity value
+
+float temp[10]; //Stores temperature value
+
+int buzzer = 10;
+
+int led = 11;
+
+int Gassensor = A5;
+
+//	threshold value int prethres;
+
+ 
+
+
+float tempPre;
+
+float humPre;
+
+int sensorThres = 100;
+
+float tempThres = 27;
+
+float humThres = 8
+
+MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
+
+bool success;
+
+String content11= "";
+
+String content12= "";
+
+void setup() {
+
+pinMode(vib, INPUT);
+
+pinMode(buzzer, OUTPUT);
+
+pinMode(Gassensor, INPUT);
+
+
+//	put your setup code here, to run once: Serial.begin(9600);
+
+dht.begin();
+
+Serial1.begin(9600);// Initiate a serial communication SPI.begin();
+
+//	Initiate SPI bus
+
+mfrc522.PCD_Init();	// Initiate MFRC522
+
+}
+
+
+void gass() {
+
+sum=0;
+
+sum1=0;
+
+sum2=0;
+
+gas[0] = analogRead(Gassensor);
+
+//Serial.print("METHANE GAS: ");
+
+if(gas[0]<100){
+
+gas[0]=100;
+
+ 
+
+
+
+}
+
+Serial.print(gas[0]);
+
+Serial.print(" ");
+
+Serial1.print(gas[0]);
+
+Serial1.print(" ");
+
+
+for(i=0;i<10;i++){
+
+sum = sum + gas[i];
+
+}
+
+avg = sum/10;
+
+rate = ( gas[0] - gas[9] ) /10;
+
+prethres = (sensorThres - (rate*20));
+
+//Serial.print("Average: ");
+
+//Serial.println(avg);
+
+//Serial.print("Rate: ");
+
+//Serial.println(rate);
+
+//Serial.print("PreTreshold: ");
+
+//Serial.println(prethres);
+
+
+for(i=9;i>0;i--){
+
+gas[i] = gas[i-1];
+
+}
+
+
+//delay(1000);
+
+//Read data and store it to variables hum and temp hum[0] = dht.readHumidity(); temp[0] = dht.readTemperature();
+
+//Print temp and humidity values to serial monitor
+
+//	Serial.print("Humidity: "); Serial.print(hum[0]); Serial.print(" ");
+
+
+
+
+Serial1.print(hum[0]);
+
+Serial1.print(" ");
+
+//	Serial.print(" Temp: "); Serial.println(temp[0]);
+
+Serial1.println(temp[0]); //Serial.print(" "); //Serial.println(" Celsius");
+//delay(1000); //Delay 2 sec.
+
+if(Serial1.available()){
+
+incomingbyte =Serial1.read();
+
+if(incomingbyte == 'k'){
+
+sensorThres = sensorThres+2;
+
+Serial.print("sensorThresold: ");
+
+Serial.println(sensorThres);
+
+}
+
+
+else if(incomingbyte == 'l'){
+
+sensorThres = sensorThres-2;
+
+Serial.print("sensorThresold: ");
+
+Serial.println(sensorThres);
+
+}
+
+if(incomingbyte == 's'){
+
+humThres = humThres+2;
+
+Serial.print("humThresold: ");
+
+Serial.println(humThres);
+
+}
+
+if(incomingbyte == 'u'){
+
+humThres = humThres-2;
+
+Serial.print("humThresold: ");
+
+Serial.println(humThres);
+
+}
+
+
+
+if(incomingbyte =='r'){
+
+tempThres = tempThres+2;
+
+Serial.print("tempThresold: ");
+
+Serial.println(tempThres);
+
+}
+
+if(incomingbyte =='y'){
+
+tempThres = tempThres-2;
+
+Serial.print("tempThresold: ");
+
+Serial.println(tempThres);
+
+}
+
+}
+
+for(i=0;i<10;i++){
+
+sum1=sum1+temp[i];
+
+sum2=sum2+hum[i];
+
+}
+
+
+rate1=(temp[0]-temp[9])/10;
+
+rate2=(hum[0]-hum[9])/10;
+
+tempPre=tempThres-(rate1*20);
+
+humPre=humThres-(rate2*20);
+
+
+//Serial.print("Rate: ");
+
+//Serial.println(rate1);
+
+//Serial.print("PreTreshold: ");
+
+//Serial.println(tempPre);
+
+
+for(i=9;i>0;i--)
+
+{
+
+temp[i]=temp[i-1];
+
+hum[i]=hum[i-1];
+
+}
+
+ 
+
+
+
+if (gas[0] > prethres || temp[0] > tempPre || hum[0] > humPre)
+
+{
+
+tone(led, 1000, 200);
+
+}
+
+
+if (temp[0] > tempThres  || hum[0] > humThres || gas[0] > sensorThres || measurement
+
+>	vibThres)
+
+{
+
+tone(buzzer, 1000, 20000);
+
+}
+
+else
+
+{
+
+
+noTone(buzzer);
+
+}
+
+delay(1000); //Delay 2 sec.
+
+
+}
+
+
+/*long TP_init()
+
+{
+
+// delay(1000);
+
+long m=pulseIn (vib, HIGH); //wait for the pin to get HIGH and returns measurement return m;
+
+}*/
+
+
+void vibr() {
+
+//	put your main code here, to run repeatedly: long m =pulseIn (vib, HIGH);;
+
+int measurement;
+
+//	delay(50);
+
+ 
+
+
+if((50) <= (m) && m <= (500))
+
+{
+
+measurement=1;
+
+}
+
+else
+
+{
+
+if((501) <= (m) && m <= (1000))
+
+{
+
+measurement=2;
+
+}
+
+else
+
+{
+
+if((1001) <= (m) && m <= (1700))
+
+{
+
+measurement=3;
+
+}
+
+else
+
+{
+
+if((1701) <= (m) && m <= (2500))
+
+{
+
+measurement=4;
+
+}
+
+else
+
+{
+
+if(m >= 2501)
+
+{
+
+measurement=5;
+
+}
+
+else
+
+{
+
+measurement=0;
+
+ 
+
+
+
+}
+
+}}}}
+
+
+//	Serial.print("measurment = "); Serial.print(measurement); Serial.print(" "); Serial1.print(measurement); Serial1.print(" ");
+
+}
+
+
+void a2()
+
+{
+
+//Serial.println("AREA 2");
+
+Serial.print("2");
+
+Serial.print(" ");
+
+Serial1.print("2");
+
+Serial1.print(" ");
+
+//	Serial.println();
+
+vibr();
+
+gass();
+
+//	delay(500);
+
+}
+
+void noone()
+
+{
+
+Serial.print("0");
+
+Serial.print(" ");
+
+Serial1.print("0");
+
+Serial1.print(" ");
+
+//	Serial.println();
+
+//	delay(500);
+
+}
+
+ 
+
+
+void a1()
+
+{
+
+//	Serial.println("Area 1"); Serial.print("1"); Serial.print(" "); //Serial.println(); Serial1.print("1"); Serial1.print(" ");
+
+vibr();
+
+gass();
+
+//delay(500);
+
+}
+
+void readd()
+
+{
+
+if ( ! mfrc522.PICC_IsNewCardPresent())
+
+{
+
+return;
+
+}
+
+// Select one of the cards
+
+if ( ! mfrc522.PICC_ReadCardSerial())
+
+{
+
+return;
+
+}
+
+//Show UID on serial monitor
+
+//	Serial.print("UID tag :"); String content= "";
+
+byte letter;
+
+for (byte i = 0; i < mfrc522.uid.size; i++)
+
+{
+
+//Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "); //Serial.print(mfrc522.uid.uidByte[i], HEX);
+
+ 
+
+
+
+content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ")); content.concat(String(mfrc522.uid.uidByte[i], HEX));
+
+}
+
+
+content.toUpperCase();
+
+content11 = content;
+
+content12 = content;
+
+//success=content.substring(1);
+
+//	if(success)
+
+}
+
+void chk1()
+
+{
+
+readd();
+
+if (content11.substring(1) == "9D 09 AB 29") //change here the UID of the card/cards that you want to give access
+
+{
+
+while(1)
+
+{
+
+a1();
+
+//delay(500);
+
+readd();
+
+if (content11.substring(1) == "67 6E AB 59")
+
+{
+
+chk2();
+
+break;
+
+}
+
+} }
+
+else if(content11.substring(1) == "67 6E AB 59")
+
+{
+
+chk2();
+
+}
+
+ 
+
+
+
+else
+
+{
+
+noone();
+
+vibr();
+
+gass();
+
+}
+
+}
+
+void chk2()
+
+{
+
+readd();
+
+if (content12.substring(1) == "67 6E AB 59")
+
+{
+
+while(1)
+
+{
+
+a2();
+
+readd();
+
+if (content12.substring(1) == "9D 09 AB 29")
+
+{
+
+chk1();
+
+break;
+
+}
+
+}}
+
+else if(content12.substring(1) == "9D 09 AB 29")
+
+{
+
+chk1();
+
+}
+
+else
+
+{
+
+noone();
+
+vibr();
+
+gass();
+
+ 
+
+
+
+}
+
+}
+
+void loop() {
+
+chk1();
+
+}
+
